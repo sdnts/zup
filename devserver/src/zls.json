@@ -1,0 +1,22 @@
+{
+  "latest": "0.12.0-dev.438+8cca7a1",
+  "latestTagged": "0.11.0",
+  "versions": {
+    "0.11.0": {
+      "date": "2023-08-04T00:00:00Z",
+      "builtWithZigVersion": "0.11.0",
+      "zlsVersion": "0.11.0",
+      "zlsMinimumBuildVersion": "0.11.0",
+      "commit": "5bfff2a4b9ee01a7bab5fc26fad6e174f289c28d",
+      "targets": ["x86_64-linux", "aarch64-macos"]
+    },
+    "0.12.0-dev.438+8cca7a1": {
+      "date": "2024-02-21T23:26:57Z",
+      "builtWithZigVersion": "0.12.0-dev.2823+955fd65cb",
+      "zlsVersion": "0.12.0-dev.438+8cca7a1",
+      "zlsMinimumBuildVersion": "0.12.0-dev.2679+54bbc73f8",
+      "commit": "8cca7a1fa125494cd840569160c6373d41fce0b6",
+      "targets": ["aarch64-macos", "x86-linux"]
+    }
+  }
+}

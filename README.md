@@ -36,3 +36,9 @@ $ zup list
 $ zup list --master
 $ zup list --stable
 ```
+
+### Development
+
+Please be mindful of hitting ZLS / Zig servers during development, these projects
+are community-funded and blob egress is expensive. I've included a mock server
+for use during development.
