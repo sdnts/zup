@@ -37,6 +37,11 @@ $ zup list --master
 $ zup list --stable
 ```
 
+---
+
+By default, `zup` stores toolchains under `~/.zup`. Setting `ZUP_PREFIX` to a
+valid path overrides this.
+
 ### Development
 
 Please be mindful of hitting ZLS / Zig servers during development, these projects

@@ -61,8 +61,7 @@ fn install(a: std.mem.Allocator, channel: Channel) !void {
         else => @compileError("unimplemented"),
     };
 
-    const root_path = try std.fs.path.join(a, &.{ home, ".zup" });
-    // const root_path = try std.fs.getAppDataDir(a, "zup");
+    const root_path = std.os.getenv("ZUP_PREFIX") orelse try std.fs.path.join(a, &.{ home, ".zup" });
     log.debug("Install directory: {s}", .{root_path});
     var root = try std.fs.openDirAbsolute(root_path, .{});
     defer root.close();
