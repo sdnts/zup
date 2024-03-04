@@ -58,32 +58,40 @@ fn list(a: std.mem.Allocator, channel: Channel) !void {
     defer root.close();
 
     var bw = std.io.bufferedWriter(std.io.getStdOut().writer());
-    var stdout = bw.writer();
+    var stdout = bw.writer().any();
 
     {
         const path = try std.fs.path.join(a, &.{ "versions", "zig" });
         const dir = try root.makeOpenPath(path, .{});
-        var iter = dir.iterate();
-
         try stdout.print("Zig:\n", .{});
-        while (try iter.next()) |e| {
-            const version = std.SemanticVersion.parse(e.name) catch continue;
-            try stdout.print("\t{any}\n", .{version});
-        }
-        try stdout.print("\n", .{});
+        try versions(a, stdout, dir);
     }
     {
         const path = try std.fs.path.join(a, &.{ "versions", "zls" });
         const dir = try root.makeOpenPath(path, .{});
-        var iter = dir.iterate();
-
         try stdout.print("ZLS:\n", .{});
-        while (try iter.next()) |e| {
-            const version = std.SemanticVersion.parse(e.name) catch continue;
-            try stdout.print("\t{any}\n", .{version});
-        }
-        try stdout.print("\n", .{});
+        try versions(a, stdout, dir);
+    }
+    try bw.flush();
+}
+
+fn versions(a: std.mem.Allocator, writer: std.io.AnyWriter, dir: std.fs.Dir) !void {
+    var dir_entries = std.ArrayList(std.SemanticVersion).init(a);
+
+    var iter = dir.iterate();
+    while (try iter.next()) |e| {
+        const version = std.SemanticVersion.parse(e.name) catch continue;
+        try dir_entries.append(version);
     }
 
-    try bw.flush();
+    const entries = try dir_entries.toOwnedSlice();
+    std.mem.sort(std.SemanticVersion, entries, .{}, sematicVersionLessThanFn);
+
+    for (entries) |e| try writer.print("\t{any}\n", .{e});
+    try writer.print("\n", .{});
+}
+
+fn sematicVersionLessThanFn(_: @TypeOf(.{}), lhs: std.SemanticVersion, rhs: std.SemanticVersion) bool {
+    const order = std.SemanticVersion.order(lhs, rhs);
+    return order.compare(.gte);
 }
