@@ -99,7 +99,7 @@ fn install(a: std.mem.Allocator, channel: Channel) !void {
         _ = std.c.unlink(path);
 
         try root.symLink(
-            try std.fs.path.join(a, &.{ "versions", "zig", version.zig, "zig" }),
+            try std.fs.path.join(a, &.{ root_path, "versions", "zig", version.zig, "zig" }),
             try std.fs.path.join(a, &.{ "bin", "zig" }),
             .{},
         );
@@ -109,8 +109,7 @@ fn install(a: std.mem.Allocator, channel: Channel) !void {
         _ = std.c.unlink(path);
 
         try root.symLink(
-            // Absolute path needed
-            try std.fs.path.join(a, &.{ "versions", "zls", version.zls, "zls" }),
+            try std.fs.path.join(a, &.{ root_path, "versions", "zls", version.zls, "zls" }),
             try std.fs.path.join(a, &.{ "bin", "zls" }),
             .{},
         );
