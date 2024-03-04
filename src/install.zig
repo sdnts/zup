@@ -2,6 +2,11 @@ const std = @import("std");
 const builtin = @import("builtin");
 const log = @import("main.zig").log;
 
+const hosts = .{
+    .zig = if (builtin.mode == .Debug) "http://localhost:8000" else "https://ziglang.org",
+    .zls = if (builtin.mode == .Debug) "http://localhost:9000" else "https://zigtools-releases.nyc3.digitaloceanspaces.com",
+};
+
 pub fn init(a: std.mem.Allocator, args: [][]const u8) !void {
     if (args.len == 0) {
         try install(a, .master);
@@ -124,8 +129,7 @@ fn resolveVersion(a: std.mem.Allocator) !ResolvedVersion {
 
     const result = try client.fetch(.{
         .method = .GET,
-        // .location = .{ .url = "https://zigtools-releases.nyc3.digitaloceanspaces.com/zls/index.json" },
-        .location = .{ .url = "http://localhost:3000/zls/index.json" },
+        .location = .{ .url = hosts.zls ++ "/zls/index.json" },
         .response_storage = .{ .dynamic = &body },
     });
 
@@ -144,13 +148,22 @@ fn resolveVersion(a: std.mem.Allocator) !ResolvedVersion {
 }
 
 fn downloadZls(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void {
-    _ = version;
-
     var client = std.http.Client{ .allocator = a };
     defer client.deinit();
 
-    const url = try std.Uri.parse("http://localhost:3000/zls");
-    const headers = try a.alloc(u8, 4096);
+    const url = try std.Uri.parse(
+        try std.mem.concat(a, u8, &.{
+            hosts.zls,
+            "/zls/",
+            version,
+            "/",
+            @tagName(builtin.cpu.arch),
+            "-",
+            @tagName(builtin.os.tag),
+            "/zls",
+        }),
+    );
+    const headers = try a.alloc(u8, 1024);
     var request = try client.open(.GET, url, .{
         .version = .@"HTTP/1.1",
         .server_header_buffer = headers,
@@ -185,13 +198,20 @@ fn downloadZls(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void
 }
 
 fn downloadZig(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void {
-    _ = version;
-
     var client = std.http.Client{ .allocator = a };
     defer client.deinit();
 
-    const url = try std.Uri.parse("http://localhost:3000/zig");
-    const headers = try a.alloc(u8, 4096);
+    const url = try std.Uri.parse(try std.mem.concat(a, u8, &.{
+        hosts.zig,
+        "/builds/zig-",
+        @tagName(builtin.os.tag),
+        "-",
+        @tagName(builtin.cpu.arch),
+        "-",
+        version,
+        ".tar.xz",
+    }));
+    const headers = try a.alloc(u8, 1024);
     var request = try client.open(.GET, url, .{
         .version = .@"HTTP/1.1",
         .server_header_buffer = headers,
