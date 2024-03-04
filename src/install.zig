@@ -67,17 +67,18 @@ fn install(a: std.mem.Allocator, channel: Channel) !void {
     };
 
     const root_path = std.os.getenv("ZUP_PREFIX") orelse try std.fs.path.join(a, &.{ home, ".zup" });
-    log.debug("Install directory: {s}", .{root_path});
     var root = try std.fs.openDirAbsolute(root_path, .{});
     defer root.close();
 
+    log.debug("Install directory: {s}", .{root_path});
+
     const version = try resolveVersion(a);
+    log.debug("Resolved versions:\n\tZig: {s}\n\tZLS: {s}", .{ version.zig, version.zls });
 
     const zig = blk: {
         log.info("Installing Zig v{s}", .{version.zig});
         const path = try std.fs.path.join(a, &.{ "versions", "zig", version.zig });
         const dir = try root.makeOpenPath(path, .{});
-
         break :blk try std.Thread.spawn(.{}, downloadZig, .{ a, version.zig, dir });
     };
 
@@ -85,7 +86,6 @@ fn install(a: std.mem.Allocator, channel: Channel) !void {
         log.info("Installing ZLS v{s}", .{version.zls});
         const path = try std.fs.path.join(a, &.{ "versions", "zls", version.zls });
         const dir = try root.makeOpenPath(path, .{});
-
         break :blk try std.Thread.spawn(.{}, downloadZls, .{ a, version.zls, dir });
     };
 
@@ -124,6 +124,8 @@ const ResolvedVersion = struct {
 fn resolveVersion(a: std.mem.Allocator) !ResolvedVersion {
     var client = std.http.Client{ .allocator = a };
     defer client.deinit();
+
+    log.debug("Listing ZLS versions", .{});
 
     var body = std.ArrayList(u8).init(a);
 
@@ -170,7 +172,7 @@ fn downloadZls(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void
     });
     defer request.deinit();
 
-    log.debug("Making network request to {s}", .{request.uri});
+    log.debug("Sending request to {s} {s}", .{ request.uri.host.?, request.uri.path });
     try request.send(.{});
     try request.finish();
 
@@ -218,7 +220,7 @@ fn downloadZig(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void
     });
     defer request.deinit();
 
-    log.debug("Making network request to {s}", .{request.uri});
+    log.debug("Sending request to {s} {s}", .{ request.uri.host.?, request.uri.path });
     try request.send(.{});
     try request.finish();
 

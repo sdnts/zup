@@ -1,11 +1,12 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const Zup = @import("zup.zig");
 const Install = @import("install.zig");
 const List = @import("list.zig");
 
 pub const log = std.log.scoped(.zup);
 pub const std_options = .{
-    .log_level = if (std.builtin.Mode.Debug) .debug else .info,
+    .log_level = if (builtin.mode == .Debug) .debug else .info,
 };
 
 pub fn main() !void {
