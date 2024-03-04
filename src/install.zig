@@ -48,17 +48,10 @@ fn help() !void {
 const Channel = enum {
     master,
     stable,
-
-    pub fn format(self: @This(), comptime _: []const u8, _: std.fmt.FormatOptions, writer: anytype) !void {
-        switch (self) {
-            .master => try writer.writeAll("master"),
-            .stable => try writer.writeAll("stable"),
-        }
-    }
 };
 
 fn install(a: std.mem.Allocator, channel: Channel) !void {
-    log.info("Checking for updates on {any}", .{channel});
+    log.info("Checking for updates on {s}", .{@tagName(channel)});
 
     const home = switch (builtin.os.tag) {
         .macos => std.os.getenv("HOME").?,
@@ -72,7 +65,7 @@ fn install(a: std.mem.Allocator, channel: Channel) !void {
 
     log.debug("Install directory: {s}", .{root_path});
 
-    const version = try resolveVersion(a);
+    const version = try resolveVersions(a);
     log.debug("Resolved versions:\n\tZig: {s}\n\tZLS: {s}", .{ version.zig, version.zls });
 
     const zig = blk: {
@@ -92,7 +85,7 @@ fn install(a: std.mem.Allocator, channel: Channel) !void {
     zig.join();
     zls.join();
 
-    _ = try root.makePath("bin");
+    try root.makePath("bin");
 
     {
         const path = try std.fs.path.joinZ(a, &.{ root_path, "bin", "zig" });
@@ -116,11 +109,8 @@ fn install(a: std.mem.Allocator, channel: Channel) !void {
     }
 }
 
-const ResolvedVersion = struct {
-    zig: []const u8,
-    zls: []const u8,
-};
-fn resolveVersion(a: std.mem.Allocator) !ResolvedVersion {
+const ResolvedVersions = struct { zig: []const u8, zls: []const u8 };
+fn resolveVersions(a: std.mem.Allocator) !ResolvedVersions {
     var client = std.http.Client{ .allocator = a };
     defer client.deinit();
 
@@ -145,7 +135,7 @@ fn resolveVersion(a: std.mem.Allocator) !ResolvedVersion {
 
     const zls = versions.object.get("latest").?.string;
     const zig = versions.object.get("versions").?.object.get(zls).?.object.get("builtWithZigVersion").?.string;
-    return ResolvedVersion{ .zig = zig, .zls = zls };
+    return ResolvedVersions{ .zig = zig, .zls = zls };
 }
 
 fn downloadZls(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void {
@@ -190,7 +180,7 @@ fn downloadZls(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void
     while (true) {
         const n = try reader.read(buf);
         if (n == 0) break;
-        _ = try writer.write(buf[0..n]);
+        try writer.writeAll(buf[0..n]);
     }
 
     try bw.flush();
@@ -225,13 +215,13 @@ fn downloadZig(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void
     try request.wait();
     if (request.response.status != .ok) return error.UnhealthyUpstream;
 
+    var br = std.io.bufferedReader(request.reader());
+    const reader = br.reader();
+
     // TODO: I hate this implementation. Downloading the archive, then spawning
     // a system command to decompress and extract it is just *yuck*. Zig's tar
     // + xz implementation is quite slow at the moment, so I cannot use that
     // either. Look into implementing the tar + xz spec yourself.
-
-    var br = std.io.bufferedReader(request.reader());
-    const reader = br.reader();
 
     const file = try dir.createFile("zig.tar.xz", .{ .truncate = true });
     defer file.close();
@@ -242,8 +232,7 @@ fn downloadZig(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void
     while (true) {
         const n = try reader.read(buf);
         if (n == 0) break;
-
-        _ = try writer.write(buf[0..n]);
+        try writer.writeAll(buf[0..n]);
     }
 
     try bw.flush();
