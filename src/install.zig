@@ -7,6 +7,11 @@ const hosts = .{
     .zls = if (builtin.mode == .Debug) "http://localhost:9000" else "https://zigtools-releases.nyc3.digitaloceanspaces.com",
 };
 
+const Channel = enum {
+    master,
+    stable,
+};
+
 pub fn init(a: std.mem.Allocator, args: [][]const u8) !void {
     if (args.len == 0) {
         try install(a, .master);
@@ -44,11 +49,6 @@ fn help() !void {
         \\
     );
 }
-
-const Channel = enum {
-    master,
-    stable,
-};
 
 fn install(a: std.mem.Allocator, channel: Channel) !void {
     log.info("Checking for updates on {s}", .{@tagName(channel)});

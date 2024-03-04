@@ -26,7 +26,7 @@ pub fn main() !void {
     } else if (std.mem.eql(u8, args[1], "install")) {
         try Install.init(a, args[2..]);
     } else if (std.mem.eql(u8, args[1], "list")) {
-        try List.init(args[2..]);
+        try List.init(a, args[2..]);
     } else if (std.mem.eql(u8, args[1], "--version") or std.mem.eql(u8, args[1], "-v")) {
         try Zup.version();
     } else if (std.mem.eql(u8, args[1], "--help") or std.mem.eql(u8, args[1], "-h")) {
