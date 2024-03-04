@@ -3,10 +3,16 @@ const Zup = @import("zup.zig");
 const Install = @import("install.zig");
 const List = @import("list.zig");
 
+pub const log = std.log.scoped(.zup);
+pub const std_options = .{
+    .log_level = if (std.builtin.Mode.Debug) .debug else .info,
+};
+
 pub fn main() !void {
-    var GPA = std.heap.GeneralPurposeAllocator(.{}){};
-    const a = GPA.allocator();
-    defer std.debug.assert(GPA.deinit() == std.heap.Check.ok);
+    var arena = std.heap.ArenaAllocator.init(std.heap.raw_c_allocator);
+    defer arena.deinit();
+
+    const a = arena.allocator();
 
     const args = try std.process.argsAlloc(a);
     defer std.process.argsFree(a, args);
@@ -14,7 +20,9 @@ pub fn main() !void {
     const stderr = std.io.getStdErr();
     const stdout = std.io.getStdOut();
 
-    if (std.mem.eql(u8, args[1], "install")) {
+    if (args.len == 1) {
+        try Install.init(a, &.{});
+    } else if (std.mem.eql(u8, args[1], "install")) {
         try Install.init(a, args[2..]);
     } else if (std.mem.eql(u8, args[1], "list")) {
         try List.init(args[2..]);
@@ -28,8 +36,4 @@ pub fn main() !void {
         try stdout.writeAll("Unknown command: ");
         try stderr.writeAll(args[1]);
     }
-}
-
-test "test" {
-    std.testing.refAllDecls(@This());
 }
