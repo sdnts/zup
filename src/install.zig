@@ -179,19 +179,18 @@ fn downloadZls(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void
     try request.wait();
     if (request.response.status != .ok) return error.UnhealthyUpstream;
 
+    var br = std.io.bufferedReader(request.reader());
+    const reader = br.reader();
+
     const file = try dir.createFile("zls", .{ .truncate = true });
     defer file.close();
-
     var bw = std.io.bufferedWriter(file.writer());
     const writer = bw.writer();
-    const reader = request.reader();
 
     const buf = try a.alloc(u8, 4096);
-
     while (true) {
         const n = try reader.read(buf);
         if (n == 0) break;
-
         _ = try writer.write(buf[0..n]);
     }
 
@@ -232,15 +231,15 @@ fn downloadZig(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void
     // + xz implementation is quite slow at the moment, so I cannot use that
     // either. Look into implementing the tar + xz spec yourself.
 
+    var br = std.io.bufferedReader(request.reader());
+    const reader = br.reader();
+
     const file = try dir.createFile("zig.tar.xz", .{ .truncate = true });
     defer file.close();
-
     var bw = std.io.bufferedWriter(file.writer());
     const writer = bw.writer();
-    const reader = request.reader();
 
     const buf = try a.alloc(u8, 4096);
-
     while (true) {
         const n = try reader.read(buf);
         if (n == 0) break;
