@@ -33,7 +33,8 @@ pub fn main() !void {
         try Zup.help();
     } else {
         try Zup.help();
-        try stdout.writeAll("Unknown command: ");
+        try stderr.writeAll("\x1B[38;5;9mUnknown command: ");
         try stderr.writeAll(args[1]);
+        try stderr.writeAll("\x1B[38;5;0m\n\n");
     }
 }
