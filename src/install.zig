@@ -2,7 +2,7 @@ const std = @import("std");
 const builtin = @import("builtin");
 const log = @import("main.zig").log;
 
-pub fn init(a: std.mem.Allocator, args: [][:0]const u8) !void {
+pub fn init(a: std.mem.Allocator, args: [][]const u8) !void {
     if (args.len == 0) {
         try install(a, .master);
     } else if (std.mem.eql(u8, args[0], "-h") or std.mem.eql(u8, args[0], "--help")) {
@@ -11,6 +11,12 @@ pub fn init(a: std.mem.Allocator, args: [][:0]const u8) !void {
         try install(a, .master);
     } else if (std.mem.eql(u8, args[0], "--stable")) {
         try install(a, .stable);
+    } else {
+        const stderr = std.io.getStdErr();
+        try help();
+        try stderr.writeAll("\x1B[38;5;9mUnknown option: ");
+        try stderr.writeAll(args[0]);
+        try stderr.writeAll("\x1B[38;5;0m\n\n");
     }
 }
 
