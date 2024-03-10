@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const Config = @import("main.zig").Config;
 const log = @import("main.zig").log;
 
 const hosts = .{
@@ -13,17 +14,17 @@ const VersionSpec = union(enum) {
     semver: std.SemanticVersion,
 };
 
-pub fn init(a: std.mem.Allocator, args: [][]const u8) !void {
+pub fn init(a: std.mem.Allocator, config: Config, args: [][]const u8) !void {
     if (args.len == 0) {
-        try install(a, .{ .master = {} });
+        try install(a, config, .{ .master = {} });
     } else if (std.mem.eql(u8, args[0], "-h") or std.mem.eql(u8, args[0], "--help")) {
         try help();
     } else if (std.mem.eql(u8, args[0], "master")) {
-        try install(a, .{ .master = {} });
+        try install(a, config, .{ .master = {} });
     } else if (std.mem.eql(u8, args[0], "stable")) {
-        try install(a, .{ .stable = {} });
+        try install(a, config, .{ .stable = {} });
     } else if (std.SemanticVersion.parse(args[0]) catch null) |v| {
-        try install(a, .{ .semver = v });
+        try install(a, config, .{ .semver = v });
     } else {
         const stderr = std.io.getStdErr();
         try help();
@@ -58,7 +59,7 @@ fn help() !void {
     );
 }
 
-fn install(a: std.mem.Allocator, version: VersionSpec) !void {
+fn install(a: std.mem.Allocator, config: Config, version: VersionSpec) !void {
     switch (version) {
         .semver => {},
         else => log.info("Checking for updates on {s}", .{@tagName(version)}),
@@ -82,17 +83,10 @@ fn install(a: std.mem.Allocator, version: VersionSpec) !void {
     };
     log.debug("Resolved versions:\n\tZig: {s}\n\tZLS: {s}", .{ versions.zig, versions.zls });
 
-    const home = switch (builtin.os.tag) {
-        .macos => std.os.getenv("HOME").?,
-        .linux => std.os.getenv("HOME").?,
-        else => @compileError("unimplemented"),
-    };
-
-    const root_path = std.os.getenv("ZUP_PREFIX") orelse try std.fs.path.join(a, &.{ home, ".zup" });
-    var root = try std.fs.openDirAbsolute(root_path, .{});
+    var root = try std.fs.openDirAbsolute(config.root_path, .{});
     defer root.close();
 
-    log.debug("Install directory: {s}", .{root_path});
+    log.debug("Install directory: {s}", .{config.root_path});
 
     const zig = blk: {
         log.info("Installing Zig v{s}", .{versions.zig});
@@ -114,21 +108,21 @@ fn install(a: std.mem.Allocator, version: VersionSpec) !void {
     try root.makePath("bin");
 
     {
-        const path = try std.fs.path.joinZ(a, &.{ root_path, "bin", "zig" });
+        const path = try std.fs.path.joinZ(a, &.{ config.root_path, "bin", "zig" });
         _ = std.c.unlink(path);
 
         try root.symLink(
-            try std.fs.path.join(a, &.{ root_path, "versions", "zig", versions.zig, "zig" }),
+            try std.fs.path.join(a, &.{ config.root_path, "versions", "zig", versions.zig, "zig" }),
             try std.fs.path.join(a, &.{ "bin", "zig" }),
             .{},
         );
     }
     {
-        const path = try std.fs.path.joinZ(a, &.{ root_path, "bin", "zls" });
+        const path = try std.fs.path.joinZ(a, &.{ config.root_path, "bin", "zls" });
         _ = std.c.unlink(path);
 
         try root.symLink(
-            try std.fs.path.join(a, &.{ root_path, "versions", "zls", versions.zls, "zls" }),
+            try std.fs.path.join(a, &.{ config.root_path, "versions", "zls", versions.zls, "zls" }),
             try std.fs.path.join(a, &.{ "bin", "zls" }),
             .{},
         );

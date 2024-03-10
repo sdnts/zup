@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const Config = @import("main.zig").Config;
 const log = @import("main.zig").log;
 
 const Channel = enum {
@@ -8,15 +9,15 @@ const Channel = enum {
     all,
 };
 
-pub fn init(a: std.mem.Allocator, args: [][:0]const u8) !void {
+pub fn init(a: std.mem.Allocator, config: Config, args: [][:0]const u8) !void {
     if (args.len == 0) {
-        try list(a, .all);
+        try list(a, config, .all);
     } else if (std.mem.eql(u8, args[0], "-h") or std.mem.eql(u8, args[0], "--help")) {
         try help();
     } else if (std.mem.eql(u8, args[0], "--master")) {
-        try list(a, .master);
+        try list(a, config, .master);
     } else if (std.mem.eql(u8, args[0], "--stable")) {
-        try list(a, .stable);
+        try list(a, config, .stable);
     } else {
         const stderr = std.io.getStdErr();
         try help();
@@ -44,17 +45,10 @@ fn help() !void {
     );
 }
 
-fn list(a: std.mem.Allocator, channel: Channel) !void {
+fn list(a: std.mem.Allocator, config: Config, channel: Channel) !void {
     log.debug("Listing downloaded versions for channel {s}", .{@tagName(channel)});
 
-    const home = switch (builtin.os.tag) {
-        .macos => std.os.getenv("HOME").?,
-        .linux => std.os.getenv("HOME").?,
-        else => @compileError("unimplemented"),
-    };
-
-    const root_path = std.os.getenv("ZUP_PREFIX") orelse try std.fs.path.join(a, &.{ home, ".zup" });
-    var root = try std.fs.openDirAbsolute(root_path, .{});
+    var root = try std.fs.openDirAbsolute(config.root_path, .{});
     defer root.close();
 
     var bw = std.io.bufferedWriter(std.io.getStdOut().writer());

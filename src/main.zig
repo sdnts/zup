@@ -9,11 +9,23 @@ pub const std_options = .{
     .log_level = if (builtin.mode == .Debug) .debug else .info,
 };
 
+pub const Config = struct { root_path: []const u8 };
+
 pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.raw_c_allocator);
     defer arena.deinit();
-
     const a = arena.allocator();
+
+    const config = Config{
+        .root_path = std.os.getenv("ZUP_PREFIX") orelse try std.fs.path.join(a, &.{
+            switch (builtin.os.tag) {
+                .macos => std.os.getenv("HOME").?,
+                .linux => std.os.getenv("HOME").?,
+                else => @compileError("unimplemented"),
+            },
+            ".zup",
+        }),
+    };
 
     const args = try std.process.argsAlloc(a);
     defer std.process.argsFree(a, args);
@@ -25,9 +37,9 @@ pub fn main() !void {
         try Zup.help();
         try stderr.writeAll("\x1B[38;5;9merror: Missing command\x1B[38;5;0m\n\n");
     } else if (std.mem.eql(u8, args[1], "install")) {
-        try Install.init(a, args[2..]);
+        try Install.init(a, config, args[2..]);
     } else if (std.mem.eql(u8, args[1], "list")) {
-        try List.init(a, args[2..]);
+        try List.init(a, config, args[2..]);
     } else if (std.mem.eql(u8, args[1], "--version") or std.mem.eql(u8, args[1], "-v")) {
         try Zup.version();
     } else if (std.mem.eql(u8, args[1], "--help") or std.mem.eql(u8, args[1], "-h")) {
