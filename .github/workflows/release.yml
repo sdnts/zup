@@ -1,0 +1,48 @@
+on:
+  push:
+    branches:
+      - main
+jobs:
+  macos-aarch64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: goto-bus-stop/setup-zig@v2
+      - run: zig build -Dtarget=aarch64-macos -Doptimize=ReleaseSmall
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zup-macos-aarch64
+          path: ./zig-out/bin/zup
+
+  macos-x86_64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: goto-bus-stop/setup-zig@v2
+      - run: zig build -Dtarget=x86_64-macos -Doptimize=ReleaseSmall
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zup-macos-x86_64
+          path: ./zig-out/bin/zup
+
+  linux-aarch64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: goto-bus-stop/setup-zig@v2
+      - run: zig build -Dtarget=aarch64-linux -Doptimize=ReleaseSmall
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zup-linux-aarch64
+          path: ./zig-out/bin/zup
+
+  linux-x86_64:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: goto-bus-stop/setup-zig@v2
+      - run: zig build -Dtarget=x86_64-linux -Doptimize=ReleaseSmall
+      - uses: actions/upload-artifact@v4
+        with:
+          name: zup-linux-x86_64
+          path: ./zig-out/bin/zup
