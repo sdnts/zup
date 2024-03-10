@@ -10,7 +10,7 @@ pub fn help() !void {
         \\  install (default)    Download and install Zig and ZLS versions
         \\  list                 List all downloaded Zig and ZLS versions
         \\
-        \\General options:
+        \\Options:
         \\  -v, --version        Print version of Zup
         \\  -h, --help           Print command-specific usage
         \\

@@ -22,7 +22,8 @@ pub fn main() !void {
     const stdout = std.io.getStdOut();
 
     if (args.len == 1) {
-        try Install.init(a, &.{});
+        try Zup.help();
+        try stderr.writeAll("\x1B[38;5;9merror: Missing command\x1B[38;5;0m\n\n");
     } else if (std.mem.eql(u8, args[1], "install")) {
         try Install.init(a, args[2..]);
     } else if (std.mem.eql(u8, args[1], "list")) {
@@ -34,7 +35,7 @@ pub fn main() !void {
         try Zup.help();
     } else {
         try Zup.help();
-        try stderr.writeAll("\x1B[38;5;9mUnknown command: ");
+        try stderr.writeAll("\x1B[38;5;9merror: Unknown command: ");
         try stderr.writeAll(args[1]);
         try stderr.writeAll("\x1B[38;5;0m\n\n");
     }
