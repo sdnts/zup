@@ -1,9 +1,24 @@
+name: Release
 on:
-  push:
-    branches:
-      - main
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        type: string
+
 jobs:
+  tag:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - run: git tag ${{ github.event.inputs.version }} 
+      - run: git push origin ${{ github.event.inputs.version }}
+
+
   macos-aarch64:
+    needs: tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -15,6 +30,7 @@ jobs:
           path: ./zig-out/bin/zup
 
   macos-x86_64:
+    needs: tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -26,6 +42,7 @@ jobs:
           path: ./zig-out/bin/zup
 
   linux-aarch64:
+    needs: tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -37,6 +54,7 @@ jobs:
           path: ./zig-out/bin/zup
 
   linux-x86_64:
+    needs: tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
