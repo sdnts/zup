@@ -8,7 +8,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
-      - run: zig build -Dtarget=aarch64-macos -Doptimize=ReleaseSmall
+      - run: zig build -Doptimize=ReleaseSmall -Dtarget=aarch64-macos
       - uses: actions/upload-artifact@v4
         with:
           name: zup-macos-aarch64
@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
-      - run: zig build -Dtarget=x86_64-macos -Doptimize=ReleaseSmall
+      - run: zig build -Doptimize=ReleaseSmall -Dtarget=x86_64-macos
       - uses: actions/upload-artifact@v4
         with:
           name: zup-macos-x86_64
@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
-      - run: zig build -Dtarget=aarch64-linux -Doptimize=ReleaseSmall
+      - run: zig build -Doptimize=ReleaseSmall -Dtarget=aarch64-linux
       - uses: actions/upload-artifact@v4
         with:
           name: zup-linux-aarch64
@@ -41,7 +41,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
-      - run: zig build -Dtarget=x86_64-linux -Doptimize=ReleaseSmall
+      - run: zig build -Doptimize=ReleaseSmall -Dtarget=x86_64-linux
       - uses: actions/upload-artifact@v4
         with:
           name: zup-linux-x86_64
