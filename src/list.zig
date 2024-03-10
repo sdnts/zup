@@ -34,12 +34,13 @@ fn help() !void {
         \\  zup list [options]
         \\
         \\Options: 
-        \\  --master    List all downloaded master versions
-        \\  --stable    List all downloaded stable versions
+        \\  all (default)   List all downloaded master versions
+        \\  master          List all downloaded master versions
+        \\  stable          List all downloaded stable versions
         \\
         \\Examples:
         \\  zig list
-        \\  zig list --stable
+        \\  zig list stable
         \\
         \\
     );
