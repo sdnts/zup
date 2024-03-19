@@ -3,13 +3,16 @@ const builtin = @import("builtin");
 const Zup = @import("zup.zig");
 const Install = @import("install.zig");
 const List = @import("list.zig");
+const Remove = @import("remove.zig");
 
 pub const log = std.log.scoped(.zup);
 pub const std_options = .{
     .log_level = if (builtin.mode == .Debug) .debug else .info,
 };
 
-pub const Config = struct { root_path: []const u8 };
+pub const Config = struct {
+    root_path: []const u8,
+};
 
 pub fn main() !void {
     var arena = std.heap.ArenaAllocator.init(std.heap.raw_c_allocator);
@@ -40,6 +43,8 @@ pub fn main() !void {
         try Install.init(a, config, args[2..]);
     } else if (std.mem.eql(u8, args[1], "list")) {
         try List.init(a, config, args[2..]);
+    } else if (std.mem.eql(u8, args[1], "remove") or std.mem.eql(u8, args[1], "uninstall")) {
+        try Remove.init(a, config, args[2..]);
     } else if (std.mem.eql(u8, args[1], "--version") or std.mem.eql(u8, args[1], "-v")) {
         try Zup.version();
     } else if (std.mem.eql(u8, args[1], "--help") or std.mem.eql(u8, args[1], "-h")) {
