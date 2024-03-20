@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const State = @import("state.zig");
 const Zup = @import("zup.zig");
 const Install = @import("install.zig");
 const List = @import("list.zig");
@@ -29,6 +30,9 @@ pub fn main() !void {
             ".zup",
         }),
     };
+    log.debug("Resolved config {s}", .{config.root_path});
+
+    var state = try State.load(a, config);
 
     const args = try std.process.argsAlloc(a);
     defer std.process.argsFree(a, args);
@@ -56,4 +60,6 @@ pub fn main() !void {
         try stderr.writeAll(args[1]);
         try stderr.writeAll("\x1B[38;5;0m\n\n");
     }
+
+    try state.save(a, config);
 }
