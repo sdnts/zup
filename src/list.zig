@@ -1,6 +1,7 @@
 const std = @import("std");
 const builtin = @import("builtin");
 const Config = @import("main.zig").Config;
+const State = @import("state.zig");
 const log = @import("main.zig").log;
 
 const Channel = enum {
@@ -9,15 +10,15 @@ const Channel = enum {
     all,
 };
 
-pub fn init(a: std.mem.Allocator, config: Config, args: [][:0]const u8) !void {
+pub fn init(config: Config, state: *State, args: [][:0]const u8) !void {
     if (args.len == 0) {
-        try list(a, config, .all);
+        try list(config, state, .all);
     } else if (std.mem.eql(u8, args[0], "-h") or std.mem.eql(u8, args[0], "--help")) {
         try help();
-    } else if (std.mem.eql(u8, args[0], "--master")) {
-        try list(a, config, .master);
-    } else if (std.mem.eql(u8, args[0], "--stable")) {
-        try list(a, config, .stable);
+    } else if (std.mem.eql(u8, args[0], "master")) {
+        try list(config, state, .master);
+    } else if (std.mem.eql(u8, args[0], "stable")) {
+        try list(config, state, .stable);
     } else {
         const stderr = std.io.getStdErr();
         try help();
@@ -31,23 +32,27 @@ fn help() !void {
     const stdout = std.io.getStdOut();
     try stdout.writeAll(
         \\Usage:
-        \\  zup list [options]
+        \\  zup list [channel]
         \\
-        \\Options: 
+        \\Channels: 
         \\  all (default)   List all downloaded master versions
         \\  master          List all downloaded master versions
         \\  stable          List all downloaded stable versions
         \\
+        \\Options: 
+        \\  -h, --help
+        \\
         \\Examples:
-        \\  zig list
-        \\  zig list stable
+        \\  zup list
+        \\  zup list stable
         \\
         \\
     );
 }
 
-fn list(a: std.mem.Allocator, config: Config, channel: Channel) !void {
+fn list(config: Config, state: *State, channel: Channel) !void {
     log.debug("Listing downloaded versions for channel {s}", .{@tagName(channel)});
+    log.info("Install location: {s}\n", .{config.root_path});
 
     var root = try std.fs.openDirAbsolute(config.root_path, .{});
     defer root.close();
@@ -55,38 +60,25 @@ fn list(a: std.mem.Allocator, config: Config, channel: Channel) !void {
     var bw = std.io.bufferedWriter(std.io.getStdOut().writer());
     var stdout = bw.writer().any();
 
-    {
-        const path = try std.fs.path.join(a, &.{ "versions", "zig" });
-        const dir = try root.makeOpenPath(path, .{});
-        try stdout.print("Zig:\n", .{});
-        try versions(a, stdout, dir);
+    if (state.versions.items.len == 0) {
+        try stdout.writeAll("No installed versions");
     }
-    {
-        const path = try std.fs.path.join(a, &.{ "versions", "zls" });
-        const dir = try root.makeOpenPath(path, .{});
-        try stdout.print("ZLS:\n", .{});
-        try versions(a, stdout, dir);
+
+    std.mem.sort(State.Versions, state.versions.items, .{}, versionOrderFn);
+    for (state.versions.items) |v| {
+        try stdout.print("{s}\n", .{v.zig});
+        try stdout.print("  └─ Zig: {s}\n", .{v.zig});
+        try stdout.print("  └─ ZLS: {s}\n", .{v.zls});
     }
+    try stdout.writeAll("\n");
+
     try bw.flush();
 }
 
-fn versions(a: std.mem.Allocator, writer: std.io.AnyWriter, dir: std.fs.Dir) !void {
-    var dir_entries = std.ArrayList(std.SemanticVersion).init(a);
-
-    var iter = dir.iterate();
-    while (try iter.next()) |e| {
-        const version = std.SemanticVersion.parse(e.name) catch continue;
-        try dir_entries.append(version);
-    }
-
-    const entries = try dir_entries.toOwnedSlice();
-    std.mem.sort(std.SemanticVersion, entries, .{}, sematicVersionLessThanFn);
-
-    for (entries) |e| try writer.print("\t{any}\n", .{e});
-    try writer.print("\n", .{});
-}
-
-fn sematicVersionLessThanFn(_: @TypeOf(.{}), lhs: std.SemanticVersion, rhs: std.SemanticVersion) bool {
-    const order = std.SemanticVersion.order(lhs, rhs);
-    return order.compare(.gte);
+fn versionOrderFn(_: @TypeOf(.{}), lhs: State.Versions, rhs: State.Versions) bool {
+    const order = std.SemanticVersion.order(
+        std.SemanticVersion.parse(lhs.zig) catch unreachable,
+        std.SemanticVersion.parse(rhs.zig) catch unreachable,
+    );
+    return order.compare(.lt);
 }
