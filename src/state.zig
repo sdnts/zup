@@ -6,6 +6,10 @@ const Self = @This();
 pub const Versions = struct {
     zig: []const u8,
     zls: []const u8,
+
+    pub fn format(value: @This(), comptime _: []const u8, _: std.fmt.FormatOptions, writer: anytype) !void {
+        try writer.print("{{ .zig = {s}, .zls = {s} }}", .{ value.zig, value.zls });
+    }
 };
 
 /// Our CLI will only ever run one command per execution. As such, there's no
