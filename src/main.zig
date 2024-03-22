@@ -21,10 +21,10 @@ pub fn main() !void {
     const a = arena.allocator();
 
     const config = Config{
-        .root_path = std.os.getenv("ZUP_PREFIX") orelse try std.fs.path.join(a, &.{
+        .root_path = std.posix.getenv("ZUP_PREFIX") orelse try std.fs.path.join(a, &.{
             switch (builtin.os.tag) {
-                .macos => std.os.getenv("HOME").?,
-                .linux => std.os.getenv("HOME").?,
+                .macos => std.posix.getenv("HOME").?,
+                .linux => std.posix.getenv("HOME").?,
                 else => @compileError("unimplemented"),
             },
             ".zup",
