@@ -84,52 +84,66 @@ fn install(a: std.mem.Allocator, config: Config, state: *State, version: Version
     };
     log.debug("Resolved versions:\n\tZig: {s}\n\tZLS: {s}", .{ versions.zig, versions.zls });
 
-    var root = try std.fs.openDirAbsolute(config.root_path, .{});
-    defer root.close();
-
-    log.debug("Install directory: {s}", .{config.root_path});
-
-    const zig = blk: {
-        log.info("Installing Zig v{s}", .{versions.zig});
-        const path = try std.fs.path.join(a, &.{ "versions", "zig", versions.zig });
-        const dir = try root.makeOpenPath(path, .{});
-        break :blk try std.Thread.spawn(.{}, Zig.download, .{ a, versions.zig, dir });
-    };
-
-    const zls = blk: {
-        log.info("Installing ZLS v{s}", .{versions.zls});
-        const path = try std.fs.path.join(a, &.{ "versions", "zls", versions.zls });
-        const dir = try root.makeOpenPath(path, .{});
-        break :blk try std.Thread.spawn(.{}, Zls.download, .{ a, versions.zls, dir });
-    };
-
-    zig.join();
-    zls.join();
-
-    try root.makePath("bin");
-
-    {
-        const path = try std.fs.path.joinZ(a, &.{ config.root_path, "bin", "zig" });
-        _ = std.c.unlink(path);
-
-        try root.symLink(
-            try std.fs.path.join(a, &.{ config.root_path, "versions", "zig", versions.zig, "zig" }),
-            try std.fs.path.join(a, &.{ "bin", "zig" }),
-            .{},
-        );
-    }
-    {
-        const path = try std.fs.path.joinZ(a, &.{ config.root_path, "bin", "zls" });
-        _ = std.c.unlink(path);
-
-        try root.symLink(
-            try std.fs.path.join(a, &.{ config.root_path, "versions", "zls", versions.zls, "zls" }),
-            try std.fs.path.join(a, &.{ "bin", "zls" }),
-            .{},
-        );
+    var exists = false;
+    for (state.versions.items) |v| {
+        if (std.mem.eql(u8, v.zig, versions.zig)) {
+            exists = true;
+            break;
+        }
     }
 
-    try state.versions.append(a, versions);
+    if (exists) {
+        log.info("Latest version on {s} is already installed, skipping download", .{@tagName(version)});
+    } else {
+        var root = try std.fs.openDirAbsolute(config.root_path, .{});
+        defer root.close();
+
+        log.debug("Install directory: {s}", .{config.root_path});
+
+        const zig = blk: {
+            log.info("Installing Zig v{s}", .{versions.zig});
+            const path = try std.fs.path.join(a, &.{ "versions", "zig", versions.zig });
+            const dir = try root.makeOpenPath(path, .{});
+            break :blk try std.Thread.spawn(.{}, Zig.download, .{ a, versions.zig, dir });
+        };
+
+        const zls = blk: {
+            log.info("Installing ZLS v{s}", .{versions.zls});
+            const path = try std.fs.path.join(a, &.{ "versions", "zls", versions.zls });
+            const dir = try root.makeOpenPath(path, .{});
+            break :blk try std.Thread.spawn(.{}, Zls.download, .{ a, versions.zls, dir });
+        };
+
+        zig.join();
+        zls.join();
+
+        try root.makePath("bin");
+
+        {
+            const path = try std.fs.path.joinZ(a, &.{ config.root_path, "bin", "zig" });
+            _ = std.c.unlink(path);
+
+            try root.symLink(
+                try std.fs.path.join(a, &.{ config.root_path, "versions", "zig", versions.zig, "zig" }),
+                try std.fs.path.join(a, &.{ "bin", "zig" }),
+                .{},
+            );
+        }
+        {
+            const path = try std.fs.path.joinZ(a, &.{ config.root_path, "bin", "zls" });
+            _ = std.c.unlink(path);
+
+            try root.symLink(
+                try std.fs.path.join(a, &.{ config.root_path, "versions", "zls", versions.zls, "zls" }),
+                try std.fs.path.join(a, &.{ "bin", "zls" }),
+                .{},
+            );
+        }
+
+        try state.versions.append(a, versions);
+    }
+
+    log.info("Setting {s} as active", .{versions.zig});
     state.active = versions.zig;
 }
 
