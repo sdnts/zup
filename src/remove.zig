@@ -1,6 +1,7 @@
 const std = @import("std");
 const builtin = @import("builtin");
 const Config = @import("main.zig").Config;
+const State = @import("state.zig");
 const log = @import("main.zig").log;
 
 const Channel = enum {
@@ -9,7 +10,7 @@ const Channel = enum {
     all,
 };
 
-pub fn init(a: std.mem.Allocator, config: Config, args: [][:0]const u8) !void {
+pub fn init(a: std.mem.Allocator, config: Config, state: *State, args: [][:0]const u8) !void {
     if (args.len == 0) {
         const stderr = std.io.getStdErr();
         try help();
@@ -18,7 +19,7 @@ pub fn init(a: std.mem.Allocator, config: Config, args: [][:0]const u8) !void {
     } else if (std.mem.eql(u8, args[0], "-h") or std.mem.eql(u8, args[0], "--help")) {
         try help();
     } else if (std.SemanticVersion.parse(args[0]) catch null) |_| {
-        try remove(a, config, args[0]);
+        try remove(a, config, state, args[0]);
     } else {
         const stderr = std.io.getStdErr();
         try help();
@@ -45,15 +46,32 @@ fn help() !void {
     );
 }
 
-fn remove(a: std.mem.Allocator, config: Config, version: [:0]const u8) !void {
-    log.info("Removing Zig v{s}", .{version});
+fn remove(a: std.mem.Allocator, config: Config, state: *State, version: [:0]const u8) !void {
+    log.info("Removing Zig {s}", .{version});
+
+    if (state.active) |active| {
+        if (std.mem.eql(u8, active, version)) {
+            log.err("Refusing to remove active version {s}", .{version});
+            return;
+        }
+    }
 
     var root = try std.fs.openDirAbsolute(config.root_path, .{});
     defer root.close();
 
-    // TODO: check if active
-    // TODO: check which version of ZLS was installed and remove it as well
+    var stateVersions: ?State.Versions = null;
+    for (state.versions.items) |v| {
+        if (std.mem.eql(u8, v.zig, version)) {
+            stateVersions = v;
+            break;
+        }
+    }
 
-    const path = try std.fs.path.join(a, &.{ "versions", "zig", version });
-    try root.deleteTree(path);
+    if (stateVersions) |v| {
+        const zig_path = try std.fs.path.join(a, &.{ "versions", "zig", v.zig });
+        try root.deleteTree(zig_path);
+
+        const zls_path = try std.fs.path.join(a, &.{ "versions", "zls", v.zls });
+        try root.deleteTree(zls_path);
+    }
 }

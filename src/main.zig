@@ -48,7 +48,7 @@ pub fn main() !void {
     } else if (std.mem.eql(u8, args[1], "list")) {
         try List.init(a, config, args[2..]);
     } else if (std.mem.eql(u8, args[1], "remove") or std.mem.eql(u8, args[1], "uninstall")) {
-        try Remove.init(a, config, args[2..]);
+        try Remove.init(a, config, &state, args[2..]);
     } else if (std.mem.eql(u8, args[1], "--version") or std.mem.eql(u8, args[1], "-v")) {
         try Zup.version();
     } else if (std.mem.eql(u8, args[1], "--help") or std.mem.eql(u8, args[1], "-h")) {
