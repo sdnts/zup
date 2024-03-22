@@ -33,6 +33,10 @@ Add `~/.zup/bin` to your $PATH.
 Download, install & activate the latest `master` version of Zig and ZLS:
 ```sh
 $ zup install
+
+info(zup): Checking for updates on master
+info(zup): Latest version on master is already installed, skipping download
+info(zup): Setting 0.12.0-dev.3405+31791ae15 as active
 ```
 
 Download, install & active the latest `stable` version of Zig and ZLS:
@@ -51,6 +55,16 @@ List all currently downloaded versions of Zig and ZLS:
 $ zup list
 $ zup list master
 $ zup list stable
+
+info(zup): Install location: /Users/siddhant/.zup
+
+0.12.0-dev.3029+723d13f83
+  └─ Zig: 0.12.0-dev.3029+723d13f83
+  └─ ZLS: 0.12.0-dev.438+8cca7a1
+0.12.0-dev.3405+31791ae15
+  └─ Zig: 0.12.0-dev.3405+31791ae15
+  └─ ZLS: 0.12.0-dev.493+0844c71
+
 ```
 
 Display all usage instructions:

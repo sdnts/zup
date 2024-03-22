@@ -60,10 +60,12 @@ pub fn load(a: std.mem.Allocator, config: Config) !Self {
         try versions.append(a, Versions{ .zig = zig.*[0..25], .zls = zls.*[0..25] });
     }
 
-    return Self{
+    const state = Self{
         .active = if (active.len == 0) null else active.*[0..25],
         .versions = versions,
     };
+    log.debug("Parsed state file: {{ .active = {?s}, .versions = {any} }}", .{ state.active, state.versions });
+    return state;
 }
 
 pub fn save(self: *Self, a: std.mem.Allocator, config: Config) !void {
