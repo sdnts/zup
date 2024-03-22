@@ -44,7 +44,7 @@ pub fn main() !void {
         try Zup.help();
         try stderr.writeAll("\x1B[38;5;9merror: Missing command\x1B[38;5;0m\n\n");
     } else if (std.mem.eql(u8, args[1], "install")) {
-        try Install.init(a, config, args[2..]);
+        try Install.init(a, config, &state, args[2..]);
     } else if (std.mem.eql(u8, args[1], "list")) {
         try List.init(a, config, args[2..]);
     } else if (std.mem.eql(u8, args[1], "remove") or std.mem.eql(u8, args[1], "uninstall")) {

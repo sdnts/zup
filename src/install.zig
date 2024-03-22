@@ -1,6 +1,7 @@
 const std = @import("std");
 const builtin = @import("builtin");
 const Config = @import("main.zig").Config;
+const State = @import("state.zig");
 const log = @import("main.zig").log;
 
 const hosts = .{
@@ -14,17 +15,17 @@ const VersionSpec = union(enum) {
     semver: std.SemanticVersion,
 };
 
-pub fn init(a: std.mem.Allocator, config: Config, args: [][]const u8) !void {
+pub fn init(a: std.mem.Allocator, config: Config, state: *State, args: [][]const u8) !void {
     if (args.len == 0) {
-        try install(a, config, .{ .master = {} });
+        try install(a, config, state, .{ .master = {} });
     } else if (std.mem.eql(u8, args[0], "-h") or std.mem.eql(u8, args[0], "--help")) {
         try help();
     } else if (std.mem.eql(u8, args[0], "master")) {
-        try install(a, config, .{ .master = {} });
+        try install(a, config, state, .{ .master = {} });
     } else if (std.mem.eql(u8, args[0], "stable")) {
-        try install(a, config, .{ .stable = {} });
+        try install(a, config, state, .{ .stable = {} });
     } else if (std.SemanticVersion.parse(args[0]) catch null) |v| {
-        try install(a, config, .{ .semver = v });
+        try install(a, config, state, .{ .semver = v });
     } else {
         const stderr = std.io.getStdErr();
         try help();
@@ -59,7 +60,7 @@ fn help() !void {
     );
 }
 
-fn install(a: std.mem.Allocator, config: Config, version: VersionSpec) !void {
+fn install(a: std.mem.Allocator, config: Config, state: *State, version: VersionSpec) !void {
     switch (version) {
         .semver => {},
         else => log.info("Checking for updates on {s}", .{@tagName(version)}),
@@ -76,7 +77,7 @@ fn install(a: std.mem.Allocator, config: Config, version: VersionSpec) !void {
         var v_zls = try std.ArrayList(u8).initCapacity(a, 25);
         try zls.format("", .{}, v_zls.writer());
 
-        break :blk .{
+        break :blk State.Versions{
             .zig = try v_zig.toOwnedSlice(),
             .zls = try v_zls.toOwnedSlice(),
         };
@@ -127,6 +128,9 @@ fn install(a: std.mem.Allocator, config: Config, version: VersionSpec) !void {
             .{},
         );
     }
+
+    try state.versions.append(a, versions);
+    state.active = versions.zig;
 }
 
 const Zig = struct {
