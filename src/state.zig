@@ -69,7 +69,7 @@ pub fn load(a: std.mem.Allocator, config: Config) !Self {
 }
 
 pub fn save(self: *Self, a: std.mem.Allocator, config: Config) !void {
-    log.debug("Commiting state .{{ .active = {?s}, .versions = {} }}", .{ self.active, self.versions });
+    log.debug("Committing state .{{ .active = {?s}, .versions = {} }}", .{ self.active, self.versions });
     const path = try std.fs.path.join(a, &.{ config.root_path, "state" });
     const file = try std.fs.createFileAbsolute(path, .{});
     defer file.close();
