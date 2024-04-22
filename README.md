@@ -18,42 +18,20 @@ expect it to supersede `zup` at some point.
 
 ### Installation
 
-#### Package Managers
-
-- [x] Homebrew (macOS): `brew tap sdnts/tools && brew install zup`
-- [ ] Linux: TBD
-
-Then, add `~/.zup/bin` to your $PATH (this is where Zup installs toolchains by
-default):
-
-```sh
-# sh / bash / zsh
-export PATH=$PATH:/home/sid/.zup/bin
-```
-
-OR
-
-```fish
-# fish
-fish_add_path /home/sid/.zup/bin
-```
-
-#### Prebuilt binaries
-
-Alternatively, you can download a pre-compiled binary for a supported OS / arch
-from the [Releases](https://github.com/sdnts/zup/releases) page and place it in
-a location that is in your $PATH. I recommend `~/.zup/bin`, since that is also
-where Zup installs toolchains by default. You may also want to rename it to `zup`,
-and give it execution permissions by running `chmod +x zup`.
+You can download a pre-built binary for a supported OS / arch from the 
+[Releases](https://github.com/sdnts/zup/releases) page, extract, and
+place it in a location that is in your $PATH. I recommend `~/.zup/bin`, since
+that is also where Zup installs toolchains by default. You may also have to give
+it execution permissions by running `chmod +x zup`.
 
 Then, add `~/.zup/bin` to your $PATH:
 
 ```sh
 # sh / bash / zsh
 export PATH=$PATH:/home/sid/.zup/bin
-```
 
-```fish
+#### OR ####
+
 # fish
 fish_add_path /home/sid/.zup/bin
 ```
@@ -67,11 +45,9 @@ defaults to `~/.zup`
 ```sh
 # sh / bash / zsh
 export ZUP_PREFIX=/usr/local/.zup
-```
 
-OR
+#### OR ####
 
-```fish
 # fish
 set -x ZUP_PREFIX /usr/local/.zup
 ```
@@ -119,6 +95,21 @@ Display all usage instructions:
 ```
 $ zup --help
 ```
+
+### Uninstallation
+
+Uninstallation is a matter of deleting the `zup` binary, as well as all installed
+toolchain versions.
+
+Delete the `zup` binary from wherever you put it initially (run `which zup` to
+find out).
+
+Installed toolchains are not deleted automatically out of an abundance of caution.
+If you overrode the `ZUP_PREFIX` environment variable, delete the directory it
+points to, and unset the environment variable. Otherwise, delete the `~/.zup`
+directory.
+
+Also don't forget to remove `~/.zup/bin` from your $PATH.
 
 ---
 
