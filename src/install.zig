@@ -44,12 +44,12 @@ fn help() !void {
         \\  zup install [version] [options]
         \\
         \\Versions:
-        \\  master (default)      Install latest compatible master versions of Zig and ZLS
-        \\  stable                Install latest compatible stable versions of Zig and ZLS
-        \\  <zig-semver>          Install a specific version of Zig, and a compatible version of ZLS
+        \\  master (default)    Install latest compatible master versions of Zig and ZLS
+        \\  stable              Install latest compatible stable versions of Zig and ZLS
+        \\  <zig-semver>        Install a specific version of Zig, and a compatible version of ZLS
         \\
         \\Options: 
-        \\  -h, --help
+        \\  -h, --help          Print command-specific usage
         \\
         \\Examples:
         \\  zup install

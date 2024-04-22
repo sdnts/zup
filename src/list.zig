@@ -40,7 +40,7 @@ fn help() !void {
         \\  stable          List all downloaded stable versions
         \\
         \\Options: 
-        \\  -h, --help
+        \\  -h, --help      Print command-specific usage
         \\
         \\Examples:
         \\  zup list

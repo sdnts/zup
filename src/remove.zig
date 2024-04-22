@@ -35,8 +35,12 @@ fn help() !void {
         \\Usage:
         \\  zup remove [version]
         \\
+        \\Versions:
+        \\  <zig-semver>    Removes a specific version of Zig, and its version of ZLS
+        \\
         \\Options: 
-        \\  -h, --help
+        \\  -h, --help      Print command-specific usage
+        \\
         \\
         \\Examples:
         \\  zup remove 0.11.0
