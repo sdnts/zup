@@ -39,6 +39,6 @@ pub fn build(b: *std.Build) void {
         // "list",
     });
     watchexec.step.dependOn(b.getInstallStep());
-    const watch = b.step("watch", "Run the app");
+    const watch = b.step("watch", "(Re)build and run app when source changes");
     watch.dependOn(&watchexec.step);
 }

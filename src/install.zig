@@ -233,8 +233,8 @@ const Zig = struct {
         });
         defer request.deinit();
 
-        log.debug("Sending request to {s} {s}", .{ request.uri.host.?, request.uri.path });
-        try request.send(.{});
+        log.debug("Sending request to {} {}", .{ request.uri.host.?, request.uri.path });
+        try request.send();
         try request.finish();
 
         try request.wait();
@@ -361,8 +361,8 @@ const Zls = struct {
         });
         defer request.deinit();
 
-        log.debug("Sending request to {s} {s}", .{ request.uri.host.?, request.uri.path });
-        try request.send(.{});
+        log.debug("Sending request to {} {}", .{ request.uri.host.?, request.uri.path });
+        try request.send();
         try request.finish();
 
         try request.wait();
