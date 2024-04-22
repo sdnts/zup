@@ -13,20 +13,68 @@ These problems are in scope:
 - [x] List all installed tool versions, and manually purge the ones you don't need
 - [ ] Install / switch to the correct version of tools for projects with a `build.zig.zon` with a single command
 
-These are also goals of the upcoming official Zig package manager. As such, I fully
+These are also goals of the upcoming official Zig package manager. As such, I
 expect it to supersede `zup` at some point.
 
 ### Installation
 
-The simplest way to get set up is to download a pre-compiled binary for a supported
-OS / arch from the [Releases](https://github.com/sdnts/zup/releases) page and
-place it in a location that is in your $PATH. I recommend `~/.zup/bin`, since
-that goes well with the default location Zup installs toolchains in (you can
-override this as well).
+#### Package Managers
 
-- [ ] macOS: `brew tap sdnts/tools && brew install zup`
+- [x] Homebrew (macOS): `brew tap sdnts/tools && brew install zup`
+- [ ] Linux: TBD
 
-Add `~/.zup/bin` to your $PATH.
+Then, add `~/.zup/bin` to your $PATH (this is where Zup installs toolchains by
+default):
+
+```sh
+# sh / bash / zsh
+export PATH=$PATH:/home/sid/.zup/bin
+```
+
+OR
+
+```fish
+# fish
+fish_add_path /home/sid/.zup/bin
+```
+
+#### Prebuilt binaries
+
+Alternatively, you can download a pre-compiled binary for a supported OS / arch
+from the [Releases](https://github.com/sdnts/zup/releases) page and place it in
+a location that is in your $PATH. I recommend `~/.zup/bin`, since that is also
+where Zup installs toolchains by default. You may also want to rename it to `zup`,
+and give it execution permissions by running `chmod +x zup`.
+
+Then, add `~/.zup/bin` to your $PATH:
+
+```sh
+# sh / bash / zsh
+export PATH=$PATH:/home/sid/.zup/bin
+```
+
+```fish
+# fish
+fish_add_path /home/sid/.zup/bin
+```
+
+### Configuration
+
+The only configuration option currently is the `ZUP_PREFIX` environment variable.
+Set it to a valid path to tell Zup where to place downloaded binaries. `ZUP_PREFIX`
+defaults to `~/.zup`
+
+```sh
+# sh / bash / zsh
+export ZUP_PREFIX=/usr/local/.zup
+```
+
+OR
+
+```fish
+# fish
+set -x ZUP_PREFIX /usr/local/.zup
+```
 
 ### Usage
 
@@ -74,9 +122,6 @@ $ zup --help
 
 ---
 
-By default, `zup` stores toolchains under `~/.zup`. Setting `ZUP_PREFIX` to a
-valid path overrides this path.
-
 ### Development
 
 Please be mindful of hitting ZLS / Zig servers during development, these projects
@@ -84,4 +129,4 @@ are community-funded and blob egress is expensive. I've included a mock server
 for use during development under `/devserver`. This is currently a JS project,
 so it requires [Bun](https://bun.sh) installed. Run `bun install`, followed by 
 `bun run src/index.ts` to start up the mock server. Debug `zup` builds should
-automatically talk to this dev server.
+automatically talk to this dev server. Release builds talk to Zig / ZLS servers.
