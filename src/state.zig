@@ -57,7 +57,10 @@ pub fn load(a: std.mem.Allocator, config: Config) !Self {
         if (n == 0) break;
         if (n < 26) return error.CorruptStatefile;
 
-        try versions.append(a, Versions{ .zig = zig.*[0..25], .zls = zls.*[0..25] });
+        try versions.append(a, Versions{
+            .zig = std.mem.trim(u8, zig.*[0..25], "\x00"),
+            .zls = std.mem.trim(u8, zls.*[0..25], "\x00"),
+        });
     }
 
     const state = Self{
