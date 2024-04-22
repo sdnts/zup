@@ -15,8 +15,9 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v4
-      - run: git tag ${{ github.event.inputs.version }} 
-      - run: git push origin ${{ github.event.inputs.version }}
+      - run: |
+          git tag ${{ github.event.inputs.version }} 
+          git push origin ${{ github.event.inputs.version }}
       - uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.event.inputs.version }}
@@ -28,12 +29,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
-      - run: zig build -Doptimize=ReleaseSmall -Dtarget=aarch64-macos -Dname=zup-macos-aarch64
+      - run: |
+          zig build -Doptimize=ReleaseSmall -Dtarget=aarch64-macos
+          tar -czf zup-macos-aarch64.tar.gz zig-out/bin/zup
+          shasum -a 256 zup-macos-aarch64.tar.gz
       - uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.event.inputs.version }}
+          draft: true
           allowUpdates: true
-          artifacts: "zig-out/bin/zup-macos-aarch64"
+          artifacts: "zup-macos-aarch64.tar.gz"
 
   macos-x86_64:
     needs: tag
@@ -41,12 +46,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
-      - run: zig build -Doptimize=ReleaseSmall -Dtarget=x86_64-macos -Dname=zup-macos-x86_64
+      - run: |
+          zig build -Doptimize=ReleaseSmall -Dtarget=x86_64-macos
+          tar -czf zup-macos-x86_64.tar.gz zig-out/bin/zup
+          shasum -a 256 zup-macos-x86_64.tar.gz
       - uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.event.inputs.version }}
+          draft: true
           allowUpdates: true
-          artifacts: "zig-out/bin/zup-macos-x86_64"
+          artifacts: "zup-macos-x86_64.tar.gz"
 
   linux-aarch64:
     needs: tag
@@ -54,12 +63,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
-      - run: zig build -Doptimize=ReleaseSmall -Dtarget=aarch64-linux -Dname=zup-linux-aarch64
+      - run: |
+          zig build -Doptimize=ReleaseSmall -Dtarget=aarch64-linux
+          tar -czf zup-linux-aarch64.tar.gz zig-out/bin/zup
+          shasum -a 256 zup-linux-aarch64.tar.gz
       - uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.event.inputs.version }}
+          draft: true
           allowUpdates: true
-          artifacts: "zig-out/bin/zup-linux-aarch64"
+          artifacts: "zup-linux-aarch64.tar.gz"
 
   linux-x86_64:
     needs: tag
@@ -67,9 +80,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: goto-bus-stop/setup-zig@v2
-      - run: zig build -Doptimize=ReleaseSmall -Dtarget=x86_64-linux -Dname=zup-linux-x86_64
+      - run: |
+          zig build -Doptimize=ReleaseSmall -Dtarget=x86_64-linux
+          tar -czf zup-linux-x86_64.tar.gz zig-out/bin/zup
+          shasum -a 256 zup-linux-x86_64.tar.gz
       - uses: ncipollo/release-action@v1
         with:
           tag: ${{ github.event.inputs.version }}
+          draft: true
           allowUpdates: true
-          artifacts: "zig-out/bin/zup-linux-x86_64"
+          artifacts: "zup-linux-x86_64.tar.gz"

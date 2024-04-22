@@ -23,8 +23,8 @@ expect it to supersede `zup` at some point.
 - [x] Homebrew (macOS): `brew tap sdnts/tools && brew install zup`
 - [ ] Linux: TBD
 
-Then, add `~/.zup/bin` to your $PATH (this is where Zup installs toolchains by
-default):
+Then, add `~/.zup/bin` to your $PATH (this is also where Zup installs toolchains
+by default):
 
 ```sh
 # sh / bash / zsh
@@ -41,10 +41,10 @@ fish_add_path /home/sid/.zup/bin
 #### Prebuilt binaries
 
 Alternatively, you can download a pre-compiled binary for a supported OS / arch
-from the [Releases](https://github.com/sdnts/zup/releases) page and place it in
-a location that is in your $PATH. I recommend `~/.zup/bin`, since that is also
-where Zup installs toolchains by default. You may also want to rename it to `zup`,
-and give it execution permissions by running `chmod +x zup`.
+from the [Releases](https://github.com/sdnts/zup/releases) page, extract, and
+place it in a location that is in your $PATH. I recommend `~/.zup/bin`, since
+that is also where Zup installs toolchains by default. You may also have to give
+it execution permissions by running `chmod +x zup`.
 
 Then, add `~/.zup/bin` to your $PATH:
 
@@ -134,4 +134,6 @@ automatically talk to this dev server. Release builds talk to Zig / ZLS servers.
 ### Releases
 
 Running the `Release` GitHub action with a version number tags the `HEAD` on `main`
-and creates a release draft. This must be published by a human manually.
+and creates a release draft. This must be published by a human manually. Also
+remember to update the Homebrew Formula with the right SHA256 checksums and
+version!
