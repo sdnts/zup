@@ -130,3 +130,8 @@ for use during development under `/devserver`. This is currently a JS project,
 so it requires [Bun](https://bun.sh) installed. Run `bun install`, followed by 
 `bun run src/index.ts` to start up the mock server. Debug `zup` builds should
 automatically talk to this dev server. Release builds talk to Zig / ZLS servers.
+
+### Releases
+
+Running the `Release` GitHub action with a version number tags the `HEAD` on `main`
+and creates a release draft. This must be published by a human manually.
