@@ -4,8 +4,10 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
+    // Argument to override binary name. Used in "Release" GitHub Action.
+    const bin_name = b.option([]const u8, "name", "Name of the binary on disk");
     const exe = b.addExecutable(.{
-        .name = "zup",
+        .name = bin_name orelse "zup",
         .root_source_file = .{ .path = "src/main.zig" },
         .target = target,
         .optimize = optimize,
