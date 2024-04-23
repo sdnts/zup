@@ -36,22 +36,6 @@ export PATH=$PATH:/home/sid/.zup/bin
 fish_add_path /home/sid/.zup/bin
 ```
 
-### Configuration
-
-The only configuration option currently is the `ZUP_PREFIX` environment variable.
-Set it to a valid path to tell Zup where to place downloaded binaries. `ZUP_PREFIX`
-defaults to `~/.zup`
-
-```sh
-# sh / bash / zsh
-export ZUP_PREFIX=/usr/local/.zup
-
-#### OR ####
-
-# fish
-set -x ZUP_PREFIX /usr/local/.zup
-```
-
 ### Usage
 
 Download, install & activate the latest `master` version of Zig and ZLS:
@@ -63,7 +47,7 @@ info(zup): Latest version on master is already installed, skipping download
 info(zup): Setting 0.12.0-dev.3405+31791ae15 as active
 ```
 
-Download, install & active the latest `stable` version of Zig and ZLS:
+Download, install & activate the latest `stable` version of Zig and ZLS:
 ```sh
 $ zup install stable
 ```
@@ -95,6 +79,23 @@ Display all usage instructions:
 ```
 $ zup --help
 ```
+
+### Configuration
+
+The only configuration option currently is the `ZUP_PREFIX` environment variable.
+Set it to a valid path to tell Zup where to place downloaded binaries. `ZUP_PREFIX`
+defaults to `~/.zup`
+
+```sh
+# sh / bash / zsh
+export ZUP_PREFIX=/usr/local/.zup
+
+#### OR ####
+
+# fish
+set -x ZUP_PREFIX /usr/local/.zup
+```
+
 
 ### Uninstallation
 
