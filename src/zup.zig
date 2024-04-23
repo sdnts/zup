@@ -20,5 +20,5 @@ pub fn help() !void {
 
 pub fn version() !void {
     const stdout = std.io.getStdOut();
-    stdout.writeAll("0.0.1") catch unreachable;
+    stdout.writeAll("0.1.0") catch unreachable;
 }
