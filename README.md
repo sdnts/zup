@@ -124,5 +124,8 @@ automatically talk to this dev server. Release builds talk to Zig / ZLS servers.
 
 ### Releases
 
+Bump up the version in `build.zig.zon`, as well as in `src/zup.zig`, and commit
+this change.
+
 Running the `Release` GitHub action with a version number tags the `HEAD` on `main`
 and creates a release draft. This must be published by a human manually.
