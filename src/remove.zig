@@ -60,22 +60,26 @@ fn remove(a: std.mem.Allocator, config: Config, state: *State, version: [:0]cons
         }
     }
 
-    var root = try std.fs.openDirAbsolute(config.root_path, .{});
-    defer root.close();
-
     var stateVersions: ?State.Versions = null;
-    for (state.versions.items) |v| {
+    var stateVersionIndex: ?usize = null;
+    for (state.versions.items, 0..) |v, i| {
         if (std.mem.eql(u8, v.zig, version)) {
             stateVersions = v;
+            stateVersionIndex = i;
             break;
         }
     }
 
     if (stateVersions) |v| {
+        var root = try std.fs.openDirAbsolute(config.root_path, .{});
+        defer root.close();
+
         const zig_path = try std.fs.path.join(a, &.{ "versions", "zig", v.zig });
         try root.deleteTree(zig_path);
 
         const zls_path = try std.fs.path.join(a, &.{ "versions", "zls", v.zls });
         try root.deleteTree(zls_path);
+
+        _ = state.versions.swapRemove(stateVersionIndex.?);
     }
 }
