@@ -38,9 +38,9 @@ pub fn load(a: std.mem.Allocator, config: Config) !Self {
     defer file.close();
 
     var br = std.io.bufferedReader(file.reader());
-    const reader = br.reader().any();
+    const reader = br.reader();
 
-    const active = try a.create([26:0]u8); // 25 bytes is the minimum we need to represent a semver.
+    const active = try a.create([26:0]u8); // 25 bytes is the minimum we need to represent a semver, plus a byte delimiter
     var n = try reader.readAll(active);
     if (n < 26) return error.CorruptStatefile; // Maybe "correct" it by resetting the statefile?
 
@@ -80,17 +80,21 @@ pub fn save(self: *Self, a: std.mem.Allocator, config: Config) !void {
     var bw = std.io.bufferedWriter(file.writer());
     const writer = bw.writer().any();
 
-    if (self.active) |active| try writeSemver(writer, active) else try writer.writeByteNTimes(0, 26);
-
+    try writeSemver(writer, self.active);
     for (self.versions.items) |v| {
         try writeSemver(writer, v.zig);
         try writeSemver(writer, v.zls);
     }
+
     try bw.flush();
 }
 
-fn writeSemver(writer: std.io.AnyWriter, semver: []const u8) !void {
-    try writer.writeAll(semver);
-    if (semver.len < 25) try writer.writeByteNTimes(0, 25 - semver.len);
-    try writer.writeByte(0);
+fn writeSemver(writer: std.io.AnyWriter, semver: ?[]const u8) !void {
+    if (semver) |s| {
+        try writer.writeAll(s);
+        if (s.len < 25) try writer.writeByteNTimes(0, 25 - s.len);
+        try writer.writeByte(0);
+    } else {
+        try writer.writeByteNTimes(0, 26);
+    }
 }
