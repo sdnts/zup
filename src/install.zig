@@ -262,7 +262,7 @@ const Zig = struct {
 
         try bw.flush();
 
-        _ = try std.ChildProcess.run(.{
+        _ = try std.process.Child.run(.{
             .allocator = a,
             .argv = &[_][]const u8{ "tar", "-xf", "zig.tar.xz", "--strip-components=1" },
             .cwd_dir = dir,
