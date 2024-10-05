@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const Palette = @import("palette.zig");
 const State = @import("state.zig");
 const Zup = @import("zup.zig");
 const Install = @import("install.zig");
@@ -37,12 +38,12 @@ pub fn main() !void {
     const args = try std.process.argsAlloc(a);
     defer std.process.argsFree(a, args);
 
-    const stderr = std.io.getStdErr();
     const stdout = std.io.getStdOut();
+    const stderr = std.io.getStdErr();
 
     if (args.len == 1) {
         try Zup.help();
-        try stderr.writeAll("\x1B[38;5;9merror: Missing command\x1B[38;5;255m\n\n");
+        try Palette.red(stderr, "error: Missing command\n\n");
     } else if (std.mem.eql(u8, args[1], "install")) {
         try Install.init(a, config, &state, args[2..]);
     } else if (std.mem.eql(u8, args[1], "list")) {
@@ -56,9 +57,9 @@ pub fn main() !void {
         try Zup.help();
     } else {
         try Zup.help();
-        try stderr.writeAll("\x1B[38;5;9merror: Unknown command: ");
-        try stderr.writeAll(args[1]);
-        try stderr.writeAll("\x1B[38;5;0m\n\n");
+        try Palette.red(stderr, "error: Unknown command: ");
+        try Palette.red(stderr, args[1]);
+        try Palette.red(stderr, "\n\n");
     }
 
     try state.save(a, config);

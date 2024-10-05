@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const Palette = @import("palette.zig");
 const Config = @import("main.zig").Config;
 const State = @import("state.zig");
 const log = @import("main.zig").log;
@@ -22,9 +23,9 @@ pub fn init(config: Config, state: *State, args: [][:0]const u8) !void {
     } else {
         const stderr = std.io.getStdErr();
         try help();
-        try stderr.writeAll("\x1B[38;5;9mUnknown option: ");
-        try stderr.writeAll(args[0]);
-        try stderr.writeAll("\x1B[38;5;0m\n\n");
+        try Palette.red(stderr, "Unknown option: ");
+        try Palette.red(stderr, args[0]);
+        try Palette.red(stderr, "\n\n");
     }
 }
 

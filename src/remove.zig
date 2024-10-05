@@ -1,5 +1,6 @@
 const std = @import("std");
 const builtin = @import("builtin");
+const Palette = @import("palette.zig");
 const Config = @import("main.zig").Config;
 const State = @import("state.zig");
 const log = @import("main.zig").log;
@@ -14,8 +15,7 @@ pub fn init(a: std.mem.Allocator, config: Config, state: *State, args: [][:0]con
     if (args.len == 0) {
         const stderr = std.io.getStdErr();
         try help();
-        try stderr.writeAll("\x1B[38;5;9merror: A version is required");
-        try stderr.writeAll("\x1B[38;5;0m\n\n");
+        try Palette.red(stderr, "error: A version is required\n\n");
     } else if (std.mem.eql(u8, args[0], "-h") or std.mem.eql(u8, args[0], "--help")) {
         try help();
     } else if (std.SemanticVersion.parse(args[0]) catch null) |_| {
@@ -23,9 +23,9 @@ pub fn init(a: std.mem.Allocator, config: Config, state: *State, args: [][:0]con
     } else {
         const stderr = std.io.getStdErr();
         try help();
-        try stderr.writeAll("\x1B[38;5;9merror: Unknown version: ");
-        try stderr.writeAll(args[0]);
-        try stderr.writeAll("\x1B[38;5;0m\n\n");
+        try Palette.red(stderr, "error: Unknown version: ");
+        try Palette.red(stderr, args[0]);
+        try Palette.red(stderr, "\n\n");
     }
 }
 

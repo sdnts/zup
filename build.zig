@@ -34,6 +34,7 @@ pub fn build(b: *std.Build) void {
         "--",
         // "install",
         "list",
+        // "remove",
     });
     watchexec.step.dependOn(b.getInstallStep());
 
