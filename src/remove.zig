@@ -14,18 +14,18 @@ const Channel = enum {
 pub fn init(a: std.mem.Allocator, config: Config, state: *State, args: [][:0]const u8) !void {
     if (args.len == 0) {
         const stderr = std.io.getStdErr();
+        try Palette.red(stderr, "\nerror: A version is required\n\n");
         try help();
-        try Palette.red(stderr, "error: A version is required\n\n");
     } else if (std.mem.eql(u8, args[0], "-h") or std.mem.eql(u8, args[0], "--help")) {
         try help();
     } else if (std.SemanticVersion.parse(args[0]) catch null) |_| {
         try remove(a, config, state, args[0]);
     } else {
         const stderr = std.io.getStdErr();
-        try help();
-        try Palette.red(stderr, "error: Unknown version: ");
+        try Palette.red(stderr, "\nerror: Unknown version: ");
         try Palette.red(stderr, args[0]);
         try Palette.red(stderr, "\n\n");
+        try help();
     }
 }
 

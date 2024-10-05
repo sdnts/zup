@@ -22,10 +22,10 @@ pub fn init(config: Config, state: *State, args: [][:0]const u8) !void {
         try list(config, state, .stable);
     } else {
         const stderr = std.io.getStdErr();
-        try help();
-        try Palette.red(stderr, "Unknown option: ");
+        try Palette.red(stderr, "\nUnknown option: ");
         try Palette.red(stderr, args[0]);
         try Palette.red(stderr, "\n\n");
+        try help();
     }
 }
 
