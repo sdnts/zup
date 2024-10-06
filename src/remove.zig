@@ -33,7 +33,7 @@ fn help() !void {
     const stdout = std.io.getStdOut();
     try stdout.writeAll(
         \\Usage:
-        \\  zup remove [version]
+        \\  zup uninstall [version]
         \\
         \\Versions:
         \\  <zig-semver>    Removes a specific version of Zig, and its version of ZLS
@@ -43,8 +43,8 @@ fn help() !void {
         \\
         \\
         \\Examples:
-        \\  zup remove 0.11.0
-        \\  zup remove 0.12.0-dev.2990+31763d28c
+        \\  zup uninstall 0.11.0
+        \\  zup uninstall 0.12.0-dev.2990+31763d28c
         \\
         \\
     );
@@ -55,7 +55,7 @@ fn remove(a: std.mem.Allocator, config: Config, state: *State, version: [:0]cons
 
     if (state.active) |active| {
         if (std.mem.eql(u8, active, version)) {
-            log.err("Refusing to remove active version {s}", .{version});
+            log.err("Refusing to uninstall active version {s}", .{version});
             return;
         }
     }
