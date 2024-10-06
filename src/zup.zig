@@ -7,8 +7,8 @@ pub fn help() !void {
         \\  zup [command] [options]
         \\
         \\Commands:
-        \\  install         Download and install Zig and ZLS versions
         \\  list            List all downloaded Zig and ZLS versions
+        \\  install         Download and install Zig and ZLS versions
         \\  uninstall       Delete a specific Zig and ZLS version
         \\  prune           Delete all non-active versions of Zig and ZLS
         \\

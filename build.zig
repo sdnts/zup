@@ -33,8 +33,8 @@ pub fn build(b: *std.Build) void {
         "build",
         "run",
         "--",
-        // "install",
         "list",
+        // "install",
         // "uninstall",
         // "prune",
     });

@@ -3,9 +3,10 @@ const builtin = @import("builtin");
 const Palette = @import("palette.zig");
 const State = @import("state.zig");
 const Zup = @import("zup.zig");
-const Install = @import("install.zig");
 const List = @import("list.zig");
+const Install = @import("install.zig");
 const Remove = @import("remove.zig");
+const Prune = @import("prune.zig");
 
 pub const log = std.log.scoped(.zup);
 pub const std_options = .{
@@ -44,10 +45,10 @@ pub fn main() !void {
     if (args.len == 1) {
         try Zup.help();
         try Palette.red(stderr, "error: Missing command\n\n");
-    } else if (std.mem.eql(u8, args[1], "install")) {
-        try Install.init(a, config, &state, args[2..]);
     } else if (std.mem.eql(u8, args[1], "list")) {
         try List.init(config, &state, args[2..]);
+    } else if (std.mem.eql(u8, args[1], "install")) {
+        try Install.init(a, config, &state, args[2..]);
     } else if (std.mem.eql(u8, args[1], "remove") or std.mem.eql(u8, args[1], "uninstall")) {
         try Remove.init(a, config, &state, args[2..]);
     } else if (std.mem.eql(u8, args[1], "prune")) {
