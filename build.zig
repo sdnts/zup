@@ -19,6 +19,7 @@ pub fn build(b: *std.Build) void {
     run_step.dependOn(&run_cmd.step);
 
     const watchexec = b.addSystemCommand(&.{"watchexec"});
+    watchexec.setEnvironmentVariable("ZUP_PREFIX", "/Users/siddhant/.zup-debug");
     watchexec.addArgs(&.{
         "-q",
         "-c",
