@@ -96,7 +96,17 @@ fn install(a: std.mem.Allocator, config: Config, state: *State, version: Version
     if (exists) {
         log.info("Latest version on {s} is already installed, skipping download", .{@tagName(version)});
     } else {
-        var root = try std.fs.openDirAbsolute(config.root_path, .{});
+        var root = std.fs.openDirAbsolute(config.root_path, .{}) catch |e| blk: {
+            switch (e) {
+                error.FileNotFound => {
+                    log.info("Config directory not found", .{});
+                    log.info("Creating directory {s}", .{config.root_path});
+                    try std.fs.makeDirAbsolute(config.root_path);
+                    break :blk try std.fs.openDirAbsolute(config.root_path, .{});
+                },
+                else => return e,
+            }
+        };
         defer root.close();
 
         log.debug("Install directory: {s}", .{config.root_path});

@@ -31,7 +31,7 @@ pub fn main() !void {
             ".zup",
         }),
     };
-    log.debug("Resolved config {s}", .{config.root_path});
+    log.debug("Config root path: {s}", .{config.root_path});
 
     var state = try State.load(a, config);
 
