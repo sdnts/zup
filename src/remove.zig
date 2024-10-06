@@ -32,6 +32,8 @@ pub fn init(a: std.mem.Allocator, config: Config, state: *State, args: [][:0]con
 fn help() !void {
     const stdout = std.io.getStdOut();
     try stdout.writeAll(
+        \\Delete a specific Zig and ZLS version
+        \\
         \\Usage:
         \\  zup uninstall [version]
         \\

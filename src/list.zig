@@ -32,6 +32,8 @@ pub fn init(config: Config, state: *State, args: [][:0]const u8) !void {
 fn help() !void {
     const stdout = std.io.getStdOut();
     try stdout.writeAll(
+        \\List all downloaded Zig and ZLS versions
+        \\
         \\Usage:
         \\  zup list [channel]
         \\
