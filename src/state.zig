@@ -43,12 +43,12 @@ pub fn load(a: std.mem.Allocator, config: Config) !Self {
 
     const state = try std.json.parseFromTokenSource(@This(), a, &reader, .{ .ignore_unknown_fields = true });
 
-    log.debug("Parsed state file: {{ .active = {s}, .versions = {s} }}", .{ state.value.active.?.items, state.value.versions.items });
+    log.debug("Parsed state file: {{ .active = {s}, .versions = {s} }}", .{ if (state.value.active == null) "null" else state.value.active.?.items, state.value.versions.items });
     return state.value;
 }
 
 pub fn save(self: *Self, a: std.mem.Allocator, config: Config) !void {
-    log.debug("Committing state .{{ .active = {s}, .versions = {s} }}", .{ self.active.?.items, self.versions.items });
+    log.debug("Committing state .{{ .active = {s}, .versions = {s} }}", .{ if (self.active == null) "null" else self.active.?.items, self.versions.items });
     const path = try std.fs.path.join(a, &.{ config.root_path, "state" });
     const file = try std.fs.createFileAbsolute(path, .{});
     defer file.close();
