@@ -65,18 +65,19 @@ fn prune(a: std.mem.Allocator, config: Config, state: *State) !void {
 
     const active = state.active.?;
     for (state.versions.items) |v| {
-        log.info("Checking Zig {s} {d}", .{ v.zig, v.zig.len });
-        if (std.mem.eql(u8, active, v.zig)) {
+        log.debug("Checking Zig {s}", .{v.zig.items});
+
+        if (std.mem.eql(u8, active.items, v.zig.items)) {
             try versions.append(a, v);
             continue;
         }
 
-        log.info("Deleting Zig {s}", .{v});
+        log.info("Deleting Zig {}", .{v});
 
-        const zig_path = try std.fs.path.join(a, &.{ "versions", "zig", v.zig });
+        const zig_path = try std.fs.path.join(a, &.{ "versions", "zig", v.zig.items });
         try root.deleteTree(zig_path);
 
-        const zls_path = try std.fs.path.join(a, &.{ "versions", "zls", v.zls });
+        const zls_path = try std.fs.path.join(a, &.{ "versions", "zls", v.zls.items });
         try root.deleteTree(zls_path);
     }
 }

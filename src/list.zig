@@ -69,9 +69,9 @@ fn list(config: Config, state: *State, channel: Channel) !void {
 
     std.mem.sort(State.Versions, state.versions.items, .{}, versionOrderFn);
     for (state.versions.items) |v| {
-        try stdout.print("{s}\n", .{v.zig});
-        try stdout.print("  └─ Zig: {s}\n", .{v.zig});
-        try stdout.print("  └─ ZLS: {s}\n", .{v.zls});
+        try stdout.print("{s}\n", .{v.zig.items});
+        try stdout.print("  └─ Zig: {s}\n", .{v.zig.items});
+        try stdout.print("  └─ ZLS: {s}\n", .{v.zls.items});
     }
     try stdout.writeAll("\n");
 
@@ -80,8 +80,8 @@ fn list(config: Config, state: *State, channel: Channel) !void {
 
 fn versionOrderFn(_: @TypeOf(.{}), lhs: State.Versions, rhs: State.Versions) bool {
     const order = std.SemanticVersion.order(
-        std.SemanticVersion.parse(lhs.zig) catch unreachable,
-        std.SemanticVersion.parse(rhs.zig) catch unreachable,
+        std.SemanticVersion.parse(lhs.zig.items) catch unreachable,
+        std.SemanticVersion.parse(rhs.zig.items) catch unreachable,
     );
     return order.compare(.lt);
 }

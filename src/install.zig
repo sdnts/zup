@@ -67,27 +67,22 @@ fn install(a: std.mem.Allocator, config: Config, state: *State, version: Version
         else => log.info("Checking for updates on {s}", .{@tagName(version)}),
     }
 
-    log.debug("Resolving versions: {any}", .{version});
-
     const versions = blk: {
-        const zig = try Zig.resolve(a, version);
-        var v_zig = try std.ArrayList(u8).initCapacity(a, 25);
-        try zig.format("", .{}, v_zig.writer());
+        const zig_semver = try Zig.resolve(a, version);
+        var zig = try State.Version.initCapacity(a, 25);
+        try zig.writer(a).print("{}", .{zig_semver});
 
-        const zls = try Zls.resolve(a, zig);
-        var v_zls = try std.ArrayList(u8).initCapacity(a, 25);
-        try zls.format("", .{}, v_zls.writer());
+        const zls_semver = try Zls.resolve(a, zig_semver);
+        var zls = try State.Version.initCapacity(a, 25);
+        try zls.writer(a).print("{}", .{zls_semver});
 
-        break :blk State.Versions{
-            .zig = try v_zig.toOwnedSlice(),
-            .zls = try v_zls.toOwnedSlice(),
-        };
+        log.debug("Resolved versions:\n\tZig: {}\n\tZLS: {}", .{ zig_semver, zls_semver });
+        break :blk State.Versions{ .zig = zig, .zls = zls };
     };
-    log.debug("Resolved versions:\n\tZig: {s}\n\tZLS: {s}", .{ versions.zig, versions.zls });
 
     var exists = false;
     for (state.versions.items) |v| {
-        if (std.mem.eql(u8, v.zig, versions.zig)) {
+        if (std.mem.eql(u8, v.zig.items, versions.zig.items)) {
             exists = true;
             break;
         }
@@ -112,15 +107,15 @@ fn install(a: std.mem.Allocator, config: Config, state: *State, version: Version
         log.debug("Install directory: {s}", .{config.root_path});
 
         const zig = blk: {
-            log.info("Installing Zig v{s}", .{versions.zig});
-            const path = try std.fs.path.join(a, &.{ "versions", "zig", versions.zig });
+            log.info("Installing Zig v{s}", .{versions.zig.items});
+            const path = try std.fs.path.join(a, &.{ "versions", "zig", versions.zig.items });
             const dir = try root.makeOpenPath(path, .{});
             break :blk try std.Thread.spawn(.{}, Zig.download, .{ a, versions.zig, dir });
         };
 
         const zls = blk: {
-            log.info("Installing ZLS v{s}", .{versions.zls});
-            const path = try std.fs.path.join(a, &.{ "versions", "zls", versions.zls });
+            log.info("Installing ZLS v{s}", .{versions.zls.items});
+            const path = try std.fs.path.join(a, &.{ "versions", "zls", versions.zls.items });
             const dir = try root.makeOpenPath(path, .{});
             break :blk try std.Thread.spawn(.{}, Zls.download, .{ a, versions.zls, dir });
         };
@@ -130,12 +125,13 @@ fn install(a: std.mem.Allocator, config: Config, state: *State, version: Version
 
         try root.makePath("bin");
 
+        log.debug("Creating symlinks", .{});
         {
             const path = try std.fs.path.joinZ(a, &.{ config.root_path, "bin", "zig" });
             _ = std.c.unlink(path);
 
             try root.symLink(
-                try std.fs.path.join(a, &.{ config.root_path, "versions", "zig", versions.zig, "zig" }),
+                try std.fs.path.join(a, &.{ config.root_path, "versions", "zig", versions.zig.items, "zig" }),
                 try std.fs.path.join(a, &.{ "bin", "zig" }),
                 .{},
             );
@@ -145,16 +141,17 @@ fn install(a: std.mem.Allocator, config: Config, state: *State, version: Version
             _ = std.c.unlink(path);
 
             try root.symLink(
-                try std.fs.path.join(a, &.{ config.root_path, "versions", "zls", versions.zls, "zls" }),
+                try std.fs.path.join(a, &.{ config.root_path, "versions", "zls", versions.zls.items, "zls" }),
                 try std.fs.path.join(a, &.{ "bin", "zls" }),
                 .{},
             );
         }
 
+        log.debug("{}", .{versions});
         try state.versions.append(a, versions);
     }
 
-    log.info("Setting {s} as active", .{versions.zig});
+    log.info("Setting {s} as active", .{versions.zig.items});
     state.active = versions.zig;
 }
 
@@ -223,7 +220,7 @@ const Zig = struct {
         }
     }
 
-    fn download(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void {
+    fn download(a: std.mem.Allocator, version: State.Version, dir: std.fs.Dir) !void {
         var client = std.http.Client{ .allocator = a };
         defer client.deinit();
 
@@ -234,7 +231,7 @@ const Zig = struct {
             "-",
             @tagName(builtin.cpu.arch),
             "-",
-            version,
+            version.items,
             ".tar.xz",
         }));
         const headers = try a.alloc(u8, 1024);
@@ -244,7 +241,7 @@ const Zig = struct {
         });
         defer request.deinit();
 
-        log.debug("Sending request to {} {}", .{ request.uri.host.?, request.uri.path });
+        log.debug("Sending request to {s}{s}", .{ request.uri.host.?.raw, request.uri.path.percent_encoded });
         try request.send();
         try request.finish();
 
@@ -349,7 +346,7 @@ const Zls = struct {
         return vmax orelse error.NoZlsVersionMatch;
     }
 
-    fn download(a: std.mem.Allocator, version: []const u8, dir: std.fs.Dir) !void {
+    fn download(a: std.mem.Allocator, version: State.Version, dir: std.fs.Dir) !void {
         var client = std.http.Client{ .allocator = a };
         defer client.deinit();
 
@@ -357,7 +354,7 @@ const Zls = struct {
             try std.mem.concat(a, u8, &.{
                 hosts.zls,
                 "/zls/",
-                version,
+                version.items,
                 "/",
                 @tagName(builtin.cpu.arch),
                 "-",
@@ -372,7 +369,7 @@ const Zls = struct {
         });
         defer request.deinit();
 
-        log.debug("Sending request to {} {}", .{ request.uri.host.?, request.uri.path });
+        log.debug("Sending request to {s}{s}", .{ request.uri.host.?.raw, request.uri.path.percent_encoded });
         try request.send();
         try request.finish();
 
