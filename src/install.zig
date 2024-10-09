@@ -168,6 +168,8 @@ const Zig = struct {
         log.debug("Fetching Zig versions", .{});
 
         var body = std.ArrayList(u8).init(a);
+        defer body.deinit();
+
         const response = try client.fetch(.{
             .method = .GET,
             .location = .{ .url = hosts.zig ++ "/download/index.json" },
@@ -235,6 +237,8 @@ const Zig = struct {
             ".tar.xz",
         }));
         const headers = try a.alloc(u8, 1024);
+        defer a.free(headers);
+
         var request = try client.open(.GET, url, .{
             .version = .@"HTTP/1.1",
             .server_header_buffer = headers,
@@ -289,6 +293,8 @@ const Zls = struct {
         log.debug("Fetching ZLS versions", .{});
 
         var body = std.ArrayList(u8).init(a);
+        defer body.deinit();
+
         const response = try client.fetch(.{
             .method = .GET,
             .location = .{ .url = hosts.zls ++ "/zls/index.json" },
@@ -363,6 +369,8 @@ const Zls = struct {
             }),
         );
         const headers = try a.alloc(u8, 1024);
+        defer a.free(headers);
+
         var request = try client.open(.GET, url, .{
             .version = .@"HTTP/1.1",
             .server_header_buffer = headers,
