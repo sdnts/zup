@@ -181,7 +181,7 @@ const Zig = struct {
         const versions = std.json.parseFromSliceLeaky(
             std.json.Value,
             a,
-            try body.toOwnedSlice(),
+            body.items,
             .{},
         ) catch return error.MalformedZigIndexPayload;
 
@@ -306,7 +306,7 @@ const Zls = struct {
         const parsed = std.json.parseFromSliceLeaky(
             std.json.Value,
             a,
-            try body.toOwnedSlice(),
+            body.items,
             .{},
         ) catch return error.MalformedZlsPayload;
 
