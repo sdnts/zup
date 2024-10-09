@@ -41,7 +41,16 @@ pub fn load(a: std.mem.Allocator, config: Config) !Self {
     var br = std.io.bufferedReader(file.reader());
     var reader = std.json.reader(a, br.reader());
 
-    const state = try std.json.parseFromTokenSource(@This(), a, &reader, .{ .ignore_unknown_fields = true });
+    var state = try std.json.parseFromTokenSource(@This(), a, &reader, .{ .ignore_unknown_fields = true });
+    if (state.value.versions.items.len == 0) {
+        // Maybe I'm misunderstanding things, but when `versions` is an empty
+        // list in the state file, `parseFromTokenSource` does not seem to initialize
+        // an empty ArrayList, instead it leaves state.versions uninitialized.
+        // This later causes problems when we try to interact with it, because
+        // accessing uninitialized memory throws SIGSEVs.
+        // To avoid this, we'll manually initialize `versions`.
+        state.value.versions = try std.ArrayListUnmanaged(Versions).initCapacity(a, 1);
+    }
 
     log.debug("Parsed state file: {{ .active = {s}, .versions = {s} }}", .{ if (state.value.active == null) "null" else state.value.active.?.items, state.value.versions.items });
     return state.value;
