@@ -250,7 +250,7 @@ const Zig = struct {
         try request.finish();
 
         try request.wait();
-        if (request.response.status != .ok) return error.UnhealthyUpstream;
+        if (request.response.status != .ok) return error.UnhealthyZigUpstream;
 
         var br = std.io.bufferedReader(request.reader());
         const reader = br.reader();
@@ -382,7 +382,7 @@ const Zls = struct {
         try request.finish();
 
         try request.wait();
-        if (request.response.status != .ok) return error.UnhealthyUpstream;
+        if (request.response.status != .ok) return error.UnhealthyZlsUpstream;
 
         var br = std.io.bufferedReader(request.reader());
         const reader = br.reader();
