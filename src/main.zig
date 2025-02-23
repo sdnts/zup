@@ -9,7 +9,7 @@ const Remove = @import("remove.zig");
 const Prune = @import("prune.zig");
 
 pub const log = std.log.scoped(.zup);
-pub const std_options = .{
+pub const std_options: std.Options = .{
     .log_level = if (builtin.mode == .Debug) .debug else .info,
 };
 

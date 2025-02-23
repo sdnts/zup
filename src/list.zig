@@ -11,7 +11,7 @@ const Channel = enum {
     all,
 };
 
-pub fn init(config: Config, state: *State, args: [][:0]const u8) !void {
+pub fn init(config: Config, state: *State, args: [][:0]u8) !void {
     if (args.len == 0) {
         try list(config, state, .all);
     } else if (std.mem.eql(u8, args[0], "-h") or std.mem.eql(u8, args[0], "--help")) {

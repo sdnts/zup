@@ -16,7 +16,7 @@ const VersionSpec = union(enum) {
     semver: std.SemanticVersion,
 };
 
-pub fn init(a: std.mem.Allocator, config: Config, state: *State, args: [][]const u8) !void {
+pub fn init(a: std.mem.Allocator, config: Config, state: *State, args: [][:0]u8) !void {
     if (args.len == 0) {
         try install(a, config, state, .{ .master = {} });
     } else if (std.mem.eql(u8, args[0], "-h") or std.mem.eql(u8, args[0], "--help")) {

@@ -11,7 +11,7 @@ const Channel = enum {
     all,
 };
 
-pub fn init(a: std.mem.Allocator, config: Config, state: *State, args: [][:0]const u8) !void {
+pub fn init(a: std.mem.Allocator, config: Config, state: *State, args: [][:0]u8) !void {
     if (args.len == 0) {
         const stderr = std.io.getStdErr();
         try Palette.red(stderr, "\nerror: A version is required\n\n");
