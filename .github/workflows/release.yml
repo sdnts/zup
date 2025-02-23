@@ -3,6 +3,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
+        description: Version to release
         required: true
         type: string
 
@@ -28,7 +29,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: goto-bus-stop/setup-zig@v2
+      - uses: mlugg/setup-zig@v1
+        with: 
+          version: master
       - run: |
           zig build -Doptimize=ReleaseSmall -Dtarget=aarch64-macos
           tar -czf zup-macos-aarch64.tar.gz -C zig-out/bin zup
@@ -45,7 +48,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: goto-bus-stop/setup-zig@v2
+      - uses: mlugg/setup-zig@v1
+        with: 
+          version: master
       - run: |
           zig build -Doptimize=ReleaseSmall -Dtarget=x86_64-macos
           tar -czf zup-macos-x86_64.tar.gz -C zig-out/bin zup
@@ -62,7 +67,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: goto-bus-stop/setup-zig@v2
+      - uses: mlugg/setup-zig@v1
+        with: 
+          version: master
       - run: |
           zig build -Doptimize=ReleaseSmall -Dtarget=aarch64-linux
           tar -czf zup-linux-aarch64.tar.gz -C zig-out/bin zup
@@ -79,7 +86,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: goto-bus-stop/setup-zig@v2
+      - uses: mlugg/setup-zig@v1
+        with: 
+          version: master
       - run: |
           zig build -Doptimize=ReleaseSmall -Dtarget=x86_64-linux
           tar -czf zup-linux-x86_64.tar.gz -C zig-out/bin zup
