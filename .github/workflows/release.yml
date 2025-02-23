@@ -9,6 +9,11 @@ on:
 
 jobs:
   tag:
+    needs:
+      - macos-aarch64
+      - macos-x86_64
+      - linux-aarch64
+      - linux-x86_64
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -25,7 +30,6 @@ jobs:
           draft: true
 
   macos-aarch64:
-    needs: tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -44,7 +48,6 @@ jobs:
           artifacts: "zup-macos-aarch64.tar.gz,zup-macos-aarch64.tar.gz.sha256"
 
   macos-x86_64:
-    needs: tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -63,7 +66,6 @@ jobs:
           artifacts: "zup-macos-x86_64.tar.gz,zup-macos-x86_64.tar.gz.sha256"
 
   linux-aarch64:
-    needs: tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -82,7 +84,6 @@ jobs:
           artifacts: "zup-linux-aarch64.tar.gz,zup-linux-aarch64.tar.gz.sha256"
 
   linux-x86_64:
-    needs: tag
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
